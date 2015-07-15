@@ -568,4 +568,9 @@ trait ElasticquentTrait
 
         return self::searchByQuery($query);
     }
+
+    public static function getElasticBuilder()
+    {
+        return new ElasticquentBuilder(new static);
+    }
 }
