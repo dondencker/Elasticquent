@@ -12,12 +12,7 @@ class ElasticquentBuilder
 
     function __construct(Model $model)
     {
-//        if ( !( new \ReflectionClass( $model ) )-> ) )
-//        {
-//            throw new \InvalidArgumentException( sprintf( 'Model must implement %s', ElasticquentTrait::class ) );
-//        }
         $this->model = $model;
-        $this->resetQuery();
     }
 
     /**
@@ -54,12 +49,6 @@ class ElasticquentBuilder
         return $this->get();
     }
 
-    private function resetQuery()
-    {
-        $this->query = [
-            "_"
-        ];
-    }
 
     /**
      * @return ElasticquentResultCollection
