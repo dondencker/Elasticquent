@@ -34,7 +34,7 @@ class ElasticquentBuilder
         if ( count( func_get_args() ) == 3 )
         {
             $operand = $value;
-            $value = func_get_arg(2);
+            $value   = func_get_arg( 2 );
         }
 
         $this->wheres[$field][$operand] = $value;
@@ -42,9 +42,16 @@ class ElasticquentBuilder
         return $this;
     }
 
-    public function search($term = "")
+    public function search($term = "", $fields = null, $phrase = false)
     {
-        $this->searchTerms = [$term];
+        $algorithm = 'match';
+
+        if ( $phrase )
+        {
+            $algorithm = 'match_phrase';
+        }
+
+        $this->searchTerms[$algorithm][] = $term;
 
         return $this->get();
     }
@@ -57,7 +64,7 @@ class ElasticquentBuilder
     {
         $result = $this->getClient()->search( $this->constructParams() );
 
-        return new ElasticquentResultCollection($result, $this->model->newInstance());
+        return new ElasticquentResultCollection( $result, $this->model->newInstance() );
     }
 
     /**
@@ -74,31 +81,37 @@ class ElasticquentBuilder
 
         $search = [];
 
-        foreach ($this->getSearchTerms() as $field => $term)
+        foreach ($this->getSearchTerms() as $matcher => $fields)
         {
-            if ( is_numeric( $field ) )
+            foreach($fields as $field => $term)
             {
-                $field = "_all";
+                if ( is_numeric( $field ) )
+                {
+                    $field = "_all";
+                }
+
+                $search[$matcher][$field] = $term;
             }
 
-            $search[$field] = $term;
         }
 
         if ( $this->hasWheres() )
         {
             foreach ($this->getWheres() as $field => $where)
             {
-                foreach($where as $operand=>$value)
+                foreach ($where as $operand => $value)
                 {
-                    $this->parseWhere($params, $field, $operand, $value);
+                    $this->parseWhere( $params, $field, $operand, $value );
                 }
             }
 
-            $params['body']['query']['filtered']['query']['match'] = $search;
+            $params['body']['query']['filtered']['query'] = $search;
+
             return $params;
         }
 
-        $params['body']['query']['match'] = $search;
+        $params['body']['query'] = $search;
+
         return $params;
 
     }
@@ -135,26 +148,31 @@ class ElasticquentBuilder
         {
             case "=":
                 $params['body']['query']['filtered']['filter']['term'][$field] = $value;
+
                 return;
 
             case ">":
                 $params['body']['query']['filtered']['filter']['range'][$field]["gt"] = $value;
+
                 return;
 
             case ">=":
                 $params['body']['query']['filtered']['filter']['range'][$field]["gte"] = $value;
+
                 return;
 
             case "<":
                 $params['body']['query']['filtered']['filter']['range'][$field]["lt"] = $value;
+
                 return;
 
             case "<=":
                 $params['body']['query']['filtered']['filter']['range'][$field]["lte"] = $value;
+
                 return;
 
             default:
-                throw new \Exception(sprintf('Operand "%s" not known', $operand));
+                throw new \Exception( sprintf( 'Operand "%s" not known', $operand ) );
 
         }
     }
