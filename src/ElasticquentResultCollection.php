@@ -1,4 +1,6 @@
-<?php namespace Elasticquent;
+<?php namespace Dencker\Elasticquent;
+
+use Illuminate\Support\Collection;
 
 class ElasticquentResultCollection extends \Illuminate\Database\Eloquent\Collection
 {
@@ -104,11 +106,15 @@ class ElasticquentResultCollection extends \Illuminate\Database\Eloquent\Collect
      * Get the raw hits array from
      * Elasticsearch results.
      *
-     * @return array
+     * @return Collection
      */
     public function getHits()
     {
-        return $this->hits;
+        $collection = new Collection( $this->hits['hits'] );
+
+        return $collection->map(function($item){
+            return $item['_source'];
+        });
     }
 
     /**

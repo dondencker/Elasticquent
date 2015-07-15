@@ -1,4 +1,4 @@
-<?php namespace Elasticquent;
+<?php namespace Dencker\Elasticquent;
 
 interface ElasticquentInterface
 {

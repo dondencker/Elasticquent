@@ -1,4 +1,4 @@
-<?php namespace Elasticquent;
+<?php namespace Dencker\Elasticquent;
 
 /**
  * Elasticquent Collection Trait

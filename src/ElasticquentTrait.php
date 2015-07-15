@@ -1,7 +1,7 @@
-<?php namespace Elasticquent;
+<?php namespace Dencker\Elasticquent;
 
-use \Elasticquent\ElasticquentCollection as ElasticquentCollection;
-use \Elasticquent\ElasticquentResultCollection as ResultCollection;
+//use DenckerElasticquentCollection as ElasticquentCollection;
+use Dencker\Elasticquent\ElasticquentResultCollection as ResultCollection;
 
 /**
  * Elasticquent Trait
@@ -206,11 +206,11 @@ trait ElasticquentTrait
      *
      * @return  array
      */
-    public static function addAllToIndex()
+    public static function addAllToIndex($with=[])
     {
         $instance = new static;
 
-        $all = $instance->newQuery()->get(array('*'));
+        $all = $instance->newQuery()->with($with)->get(array('*'));
 
         return $all->addToIndex();
     }
@@ -258,7 +258,7 @@ trait ElasticquentTrait
         if ($aggregations) {
             $params['body']['aggs'] = $aggregations;
         }
-        
+
         if ($sort) {
             $params['body']['sort'] = $sort;
         }
@@ -557,5 +557,15 @@ trait ElasticquentTrait
         }
 
         return $instance;
+    }
+
+    public static function searchByRelation($relation, $term)
+    {
+        $query = [];
+
+        $query['multi_match']['query'] = $term;
+        $query['multi_match']['fields'] = ["{$relation}.*"];
+
+        return self::searchByQuery($query);
     }
 }
