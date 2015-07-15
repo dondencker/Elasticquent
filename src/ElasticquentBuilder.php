@@ -106,10 +106,11 @@ class ElasticquentBuilder
             }
 
             $params['body']['query']['filtered']['query']['match'] = $search;
-//            dd($params);
             return $params;
         }
 
+        $params['body']['query']['match'] = $search;
+        return $params;
 
     }
 
