@@ -79,38 +79,9 @@ class ElasticquentBuilder
     {
         $params = $this->getDefaultParams();
 
-        $search = [];
-
-        foreach ($this->getSearchTerms() as $matcher => $fields)
-        {
-            foreach($fields as $field => $term)
-            {
-                if ( is_numeric( $field ) )
-                {
-                    $field = "_all";
-                }
-
-                $search[$matcher][$field] = $term;
-            }
-
-        }
-
-        if ( $this->hasWheres() )
-        {
-            foreach ($this->getWheres() as $field => $where)
-            {
-                foreach ($where as $operand => $value)
-                {
-                    $this->parseWhere( $params, $field, $operand, $value );
-                }
-            }
-
-            $params['body']['query']['filtered']['query'] = $search;
-
-            return $params;
-        }
-
-        $params['body']['query'] = $search;
+        $searchBody = $this->constructSearchTerms();
+        
+        $params = $this->constructWheres( $searchBody, $params );
 
         return $params;
 
@@ -175,5 +146,58 @@ class ElasticquentBuilder
                 throw new \Exception( sprintf( 'Operand "%s" not known', $operand ) );
 
         }
+    }
+
+    /**
+     * @return array
+     *
+     */
+    private function constructSearchTerms()
+    {
+        $search = [];
+        foreach ($this->getSearchTerms() as $matcher => $fields)
+        {
+            foreach ($fields as $field => $term)
+            {
+                if ( is_numeric( $field ) )
+                {
+                    $field = "_all";
+                }
+
+                $search[$matcher][$field] = $term;
+            }
+
+        }
+
+        return $search;
+    }
+
+    /**
+     * @param $search
+     * @param $params
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    private function constructWheres($search, $params)
+    {
+        if ( $this->hasWheres() )
+        {
+            foreach ($this->getWheres() as $field => $where)
+            {
+                foreach ($where as $operand => $value)
+                {
+                    $this->parseWhere( $params, $field, $operand, $value );
+                }
+            }
+
+            $params['body']['query']['filtered']['query'] = $search;
+
+            return $params;
+        }
+
+        $params['body']['query'] = $search;
+
+        return $params;
     }
 }
