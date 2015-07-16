@@ -80,7 +80,7 @@ class ElasticquentBuilder
         $params = $this->getDefaultParams();
 
         $searchBody = $this->constructSearchTerms();
-        
+
         $params = $this->constructWheres( $searchBody, $params );
 
         return $params;
@@ -118,27 +118,27 @@ class ElasticquentBuilder
         switch ($operand)
         {
             case "=":
-                $params['body']['query']['filtered']['filter']['term'][$field] = $value;
+                $params['body']['query']['filtered']['filter']['bool']['must'][]['term'][$field] = $value;
 
                 return;
 
             case ">":
-                $params['body']['query']['filtered']['filter']['range'][$field]["gt"] = $value;
+                $params['body']['query']['filtered']['filter']['bool']['must'][]['range'][$field]["gt"] = $value;
 
                 return;
 
             case ">=":
-                $params['body']['query']['filtered']['filter']['range'][$field]["gte"] = $value;
+                $params['body']['query']['filtered']['filter']['bool']['must'][]['range'][$field]["gte"] = $value;
 
                 return;
 
             case "<":
-                $params['body']['query']['filtered']['filter']['range'][$field]["lt"] = $value;
+                $params['body']['query']['filtered']['filter']['bool']['must'][]['range'][$field]["lt"] = $value;
 
                 return;
 
             case "<=":
-                $params['body']['query']['filtered']['filter']['range'][$field]["lte"] = $value;
+                $params['body']['query']['filtered']['filter']['bool']['must'][]['range'][$field]["lte"] = $value;
 
                 return;
 
@@ -147,7 +147,6 @@ class ElasticquentBuilder
 
         }
     }
-
     /**
      * @return array
      *
